@@ -20,7 +20,16 @@ class UserManager(BaseUserManager):
         '''
         create and save a superuser with the given email and password and extra data
         '''
-        pass
+        extra_field.setdefault('is_staff', True)
+        extra_field.setdefault('is_superuser', True)
+        extra_field.setdefault('is_active', True)
+
+        if extra_field.get('is_staff') is not True:
+            raise ValueError(_("Superuser must have is_Staff=True"))
+        if extra_field.get('is_superuser') is not True:
+            raise ValueError(_("Superuser must have is_Superuser=True"))
+        
+        return self.create_user(email, password, **extra_field)
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255)
@@ -28,6 +37,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     first_name = models.CharField(max_length=20)
+    USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
     created_date = models.DateTimeField(auto_now_add=True)
